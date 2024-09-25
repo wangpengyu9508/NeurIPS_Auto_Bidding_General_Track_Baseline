@@ -5,19 +5,19 @@ from bidding_train_env.strategy.base_bidding_strategy import BaseBiddingStrategy
 import os
 
 
-class IqlBiddingStrategy(BaseBiddingStrategy):
+class VIqlBiddingStrategy(BaseBiddingStrategy):
     """
     IQL Strategy
     """
 
-    def __init__(self, budget=100, name="Iql-PlayerStrategy", cpa=2, category=1):
+    def __init__(self, budget=100, name="VIql-PlayerStrategy", cpa=2, category=1):
         super().__init__(budget, name, cpa, category)
 
         file_name = os.path.dirname(os.path.realpath(__file__))
         dir_name = os.path.dirname(file_name)
         dir_name = os.path.dirname(dir_name)
-        model_path = os.path.join(dir_name,"saved_model","IQLtest","iql_model.pth")
-        dict_path = os.path.join(dir_name,"saved_model","IQLtest","normalize_dict.pkl")
+        model_path = os.path.join(dir_name,"saved_model","VIQLtest","viql_model.pth")
+        dict_path = os.path.join(dir_name,"saved_model","VIQLtest","normalize_dict.pkl")
         self.model = torch.jit.load(model_path)
         with open(dict_path, 'rb') as file:
             self.normalize_dict = pickle.load(file)
@@ -100,88 +100,6 @@ class IqlBiddingStrategy(BaseBiddingStrategy):
         test_state = torch.tensor(test_state, dtype=torch.float)
         alpha = self.model(test_state)
         alpha = alpha.cpu().numpy()
-
-        # if self.category == 0:
-        #     if timeStepIndex >= 0 and timeStepIndex <= 7:
-        #         alpha *= 1.1
-        #     elif timeStepIndex >= 8 and timeStepIndex <= 15:
-        #         alpha *= 0.9
-        #     elif timeStepIndex >= 16 and timeStepIndex <= 23:
-        #         pass
-        #     elif timeStepIndex >= 24 and timeStepIndex <= 31:
-        #         alpha *= 1.1
-        #     elif timeStepIndex >= 32 and timeStepIndex <= 39:
-        #         pass
-        #     else:
-        #         pass
-        # elif self.category == 1:
-        #     if timeStepIndex >= 0 and timeStepIndex <= 7:
-        #         pass
-        #     elif timeStepIndex >= 8 and timeStepIndex <= 15:
-        #         pass
-        #     elif timeStepIndex >= 16 and timeStepIndex <= 23:
-        #         pass
-        #     elif timeStepIndex >= 24 and timeStepIndex <= 31:
-        #         pass
-        #     elif timeStepIndex >= 32 and timeStepIndex <= 39:
-        #         alpha *= 0.9
-        #     else:
-        #         pass
-        # elif self.category == 2:
-        #     if timeStepIndex >= 0 and timeStepIndex <= 7:
-        #         pass
-        #     elif timeStepIndex >= 8 and timeStepIndex <= 15:
-        #         pass
-        #     elif timeStepIndex >= 16 and timeStepIndex <= 23:
-        #         pass
-        #     elif timeStepIndex >= 24 and timeStepIndex <= 31:
-        #         pass
-        #     elif timeStepIndex >= 32 and timeStepIndex <= 39:
-        #         pass
-        #     else:
-        #         pass
-        # elif self.category == 3:
-        #     if timeStepIndex >= 0 and timeStepIndex <= 7:
-        #         alpha *= 0.9
-        #     elif timeStepIndex >= 8 and timeStepIndex <= 15:
-        #         alpha *= 0.9
-        #     elif timeStepIndex >= 16 and timeStepIndex <= 23:
-        #         alpha *= 1.1
-        #     elif timeStepIndex >= 24 and timeStepIndex <= 31:
-        #         pass
-        #     elif timeStepIndex >= 32 and timeStepIndex <= 39:
-        #         pass
-        #     else:
-        #         pass
-        # elif self.category == 4:
-        #     if timeStepIndex >= 0 and timeStepIndex <= 7:
-        #         pass
-        #     elif timeStepIndex >= 8 and timeStepIndex <= 15:
-        #         pass
-        #     elif timeStepIndex >= 16 and timeStepIndex <= 23:
-        #         alpha *= 1.1
-        #     elif timeStepIndex >= 24 and timeStepIndex <= 31:
-        #         pass
-        #     elif timeStepIndex >= 32 and timeStepIndex <= 39:
-        #         pass
-        #     else:
-        #         alpha *= 0.9
-        # elif self.category == 5:
-        #     if timeStepIndex >= 0 and timeStepIndex <= 7:
-        #         pass
-        #     elif timeStepIndex >= 8 and timeStepIndex <= 15:
-        #         pass
-        #     elif timeStepIndex >= 16 and timeStepIndex <= 23:
-        #         pass
-        #     elif timeStepIndex >= 24 and timeStepIndex <= 31:
-        #         alpha *= 0.9
-        #     elif timeStepIndex >= 32 and timeStepIndex <= 39:
-        #         pass
-        #     else:
-        #         pass
-
-        pValues = pValues * (1 - pValueSigmas)
-        alpha = np.where(pValues < np.mean(pValues), alpha * (1 - pValues), alpha * (1 + pValues))
         bids = alpha * pValues
 
         return bids

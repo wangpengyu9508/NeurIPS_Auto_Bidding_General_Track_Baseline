@@ -24,12 +24,12 @@ class OfflineEnv:
         :return: Win values, costs spent, and winning status for each bid.
 
         """
-        tick_status = bids >= leastWinningCosts
+        tick_status = bids >= leastWinningCosts # 是否竞得前3，只有前3才有曝光机会
         tick_cost = leastWinningCosts * tick_status
-        values = np.random.normal(loc=pValues, scale=pValueSigmas)
+        values = np.random.normal(loc=pValues, scale=pValueSigmas) # values在以pValues为均值，pValueSigmas为方差的正太分布采样得到
         values = values*tick_status
         tick_value = np.clip(values,0,1)
-        tick_conversion = np.random.binomial(n=1, p=tick_value)
+        tick_conversion = np.random.binomial(n=1, p=tick_value) # 1次伯努利实验，成功概率为values
 
         return tick_value, tick_cost, tick_status,tick_conversion
 

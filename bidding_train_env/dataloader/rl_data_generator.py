@@ -124,6 +124,8 @@ class RlDataGenerator:
                     'conversionAction'].sum()
                 reward_continuous = current_timeStepIndex_data[current_timeStepIndex_data['isExposed'] == 1][
                     'pValue'].sum()
+                realtime_cost = current_timeStepIndex_data[current_timeStepIndex_data['isExposed'] == 1][
+                    'leastWinningCost'].sum()
 
                 done = 1 if timeStepIndex == timeStepIndexNum - 1 or current_timeStepIndex_data['isEnd'].iloc[
                     0] == 1 else 0
@@ -141,7 +143,8 @@ class RlDataGenerator:
                     'action': action,
                     'reward': reward,
                     'reward_continuous': reward_continuous,
-                    'done': done
+                    'done': done,
+                    'realTimeCost': realtime_cost
                 })
 
         training_data = pd.DataFrame(training_data_rows)
