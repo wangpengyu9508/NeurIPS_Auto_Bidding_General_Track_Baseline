@@ -102,11 +102,10 @@ class VIqlBiddingStrategy(BaseBiddingStrategy):
         alpha = self.model(test_state)
         alpha = alpha.cpu().numpy()
 
-        if historical_LeastWinningCost_mean != 0 and time_left < 0.5:
-            his_roi = historical_pValues_mean / historical_LeastWinningCost_mean
-            cur_roi = pValues / last_three_LeastWinningCost_mean
-            alpha = np.where(cur_roi > his_roi, alpha * 1.2, alpha)
-        self.cpa = max(self.cpa, 130)
+        # if historical_LeastWinningCost_mean != 0 and time_left < 0.5:
+        #     his_roi = historical_pValues_mean / historical_LeastWinningCost_mean
+        #     cur_roi = pValues / last_three_LeastWinningCost_mean
+        #     alpha = np.where(cur_roi > his_roi, alpha * 1.2, alpha)
 
         # tmp = np.full(self.cpa.shape, 100)
         # res1 = np.where(pValues < np.mean(pValues), alpha * (self.cpa * 1.0 / 100), alpha)

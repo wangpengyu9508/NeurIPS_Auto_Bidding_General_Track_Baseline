@@ -25,8 +25,10 @@ expectile = 0.6
 def reward_consider_exceed(training_data):
     beta = 2
     coef = (training_data['CPAConstraint'] * training_data['reward_continuous']) / (training_data['realTimeCost'] + 1e-10)
+    coef = coef * training_data['CPAConstraint'] / 100
     penalty = np.minimum(1,pow(coef, beta))
     penalty2 = np.maximum(0.8 - coef, 0) * 100 + np.maximum(0.93 - coef, 0) * 30 # 超成本：coef小于1
+
     training_data['reward_exceed'] = penalty * training_data['reward_continuous'] - penalty2 # * training_data['CPAConstraint']
 
 def train_viql_model():
