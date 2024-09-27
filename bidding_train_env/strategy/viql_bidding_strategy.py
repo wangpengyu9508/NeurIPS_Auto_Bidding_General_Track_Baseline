@@ -57,10 +57,13 @@ class VIqlBiddingStrategy(BaseBiddingStrategy):
 
         historical_LeastWinningCost_mean = np.mean(
             [np.mean(price) for price in historyLeastWinningCost]) if historyLeastWinningCost else 0
+        historical_LeastWinningCost_max = np.max(
+            [np.max(price) for price in historyLeastWinningCost]) if historyLeastWinningCost else 0
 
         historical_pValues_mean = np.mean([np.mean(value) for value in history_pValue]) if history_pValue else 0
 
         historical_bid_mean = np.mean([np.mean(bid) for bid in historyBid]) if historyBid else 0
+        historical_bid_max = np.max([np.max(bid) * 1000 for bid in historyBid]) if historyBid else 0
 
         def mean_of_last_n_elements(history, n):
             last_three_data = history[max(0, n - 3):n]
@@ -101,6 +104,7 @@ class VIqlBiddingStrategy(BaseBiddingStrategy):
         test_state = torch.tensor(test_state, dtype=torch.float)
         alpha = self.model(test_state)
         alpha = alpha.cpu().numpy()
+        self.cpa = historical_bid_max
 
         # if historical_LeastWinningCost_mean != 0 and time_left < 0.5:
         #     his_roi = historical_pValues_mean / historical_LeastWinningCost_mean
