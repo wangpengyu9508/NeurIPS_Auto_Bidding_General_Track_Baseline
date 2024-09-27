@@ -95,7 +95,7 @@ def add_to_replay_buffer(replay_buffer, training_data, is_normalize):
                                np.array([done]))
 
 
-def train_model_steps(model, replay_buffer, step_num=200000, batch_size=100):
+def train_model_steps(model, replay_buffer, step_num=20000, batch_size=100):
     for i in range(step_num):
         states, actions, rewards, next_states, terminals = replay_buffer.sample()
         experi = [ states, actions, rewards, next_states, terminals ]
