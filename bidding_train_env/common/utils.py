@@ -23,7 +23,7 @@ def normalize_state(training_data, state_dim, normalize_indices):
             lambda x: x[i] if x is not None and not np.isnan(x).any() else 0.0)
         training_data[next_state_col] = training_data['next_state'].apply(
             lambda x: x[i] if x is not None and not np.isnan(x).any() else 0.0)
-
+ 
     stats = {
         i: {
             'min': training_data[state_columns[i]].min(),

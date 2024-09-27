@@ -26,15 +26,14 @@ def reward_consider_exceed(training_data):
     beta = 2
     coef = (training_data['CPAConstraint'] * training_data['reward_continuous']) / (training_data['realTimeCost'] + 1e-10)
     penalty = np.minimum(1,pow(coef, beta))
-    penalty2 = np.maximum(0.93 - coef, 0) * 30 # 超成本：coef小于1
-    penalty3 = np.maximum(0.8 - coef, 0) * 100 # 超成本：coef小于1
-    training_data['reward_exceed'] = penalty * training_data['reward_continuous'] - penalty2 - penalty3 # * training_data['CPAConstraint']
+    penalty2 = np.maximum(0.8 - coef, 0) * 100 + np.maximum(0.93 - coef, 0) * 30 # 超成本：coef小于1
+    training_data['reward_exceed'] = penalty * training_data['reward_continuous'] - penalty2 # * training_data['CPAConstraint']
 
 def train_viql_model():
     """
     Train the IQL model.
     """
-    config_seed = 1
+    config_seed = 2024
     np.random.seed(config_seed)
     random.seed(config_seed)
     torch.manual_seed(config_seed)
@@ -99,7 +98,8 @@ def train_model_steps(model, replay_buffer, step_num=20000, batch_size=100):
         states, actions, rewards, next_states, terminals = replay_buffer.sample()
         experi = [ states, actions, rewards, next_states, terminals ]
         a_loss, c1_loss, c2_loss, v_loss = model.learn(experi)
-        logger.info(f'Step: {i} c1_loss: {c1_loss} c2_loss: {c2_loss} V_loss: {v_loss} A_loss: {a_loss}')
+        if i % 500 == 0:
+            logger.info(f'Step: {i} c1_loss: {c1_loss} c2_loss: {c2_loss} V_loss: {v_loss} A_loss: {a_loss}')
 
 
 def test_trained_model(model, replay_buffer):

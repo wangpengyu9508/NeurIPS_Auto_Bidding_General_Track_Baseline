@@ -124,7 +124,7 @@ if __name__ == '__main__':
     
     for i in range(len(data_list)):
         for j in range(5): # 5次取平均值
-            cur_score = run_mult_adv(file_path = root_dir + data_list[i], test_epoch=1, save_path = root_dir + data_list[i])
+            cur_score = run_mult_adv(file_path = root_dir + data_list[i], test_epoch=1, save_path = root_dir + "analysis.csv")
             score.append(cur_score)
             print("start evaluate ... at ", j + 1, " and cur_score: ", cur_score)
 

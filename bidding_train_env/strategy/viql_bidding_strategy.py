@@ -3,6 +3,7 @@ import torch
 import pickle
 from bidding_train_env.strategy.base_bidding_strategy import BaseBiddingStrategy
 import os
+import math
 
 
 class VIqlBiddingStrategy(BaseBiddingStrategy):
@@ -101,84 +102,106 @@ class VIqlBiddingStrategy(BaseBiddingStrategy):
         alpha = self.model(test_state)
         alpha = alpha.cpu().numpy()
 
-        if self.category == 0:
-            if timeStepIndex >= 0 and timeStepIndex <= 7:
-                alpha *= 1.2
-            elif timeStepIndex >= 8 and timeStepIndex <= 15:
-                alpha *= 0.5
-            elif timeStepIndex >= 16 and timeStepIndex <= 23:
-                alpha *= 1.0
-            elif timeStepIndex >= 24 and timeStepIndex <= 31:
-                alpha *= 1.0
-            elif timeStepIndex >= 32 and timeStepIndex <= 39:
-                alpha *= 1.2
-            else:
-                alpha *= 1.0
-        elif self.category == 1:
-            if timeStepIndex >= 0 and timeStepIndex <= 7:
-                alpha *= 1.0
-            elif timeStepIndex >= 8 and timeStepIndex <= 15:
-                alpha *= 0.5
-            elif timeStepIndex >= 16 and timeStepIndex <= 23:
-                alpha *= 1.0
-            elif timeStepIndex >= 24 and timeStepIndex <= 31:
-                alpha *= 1.0
-            elif timeStepIndex >= 32 and timeStepIndex <= 39:
-                alpha *= 1.0
-            else:
-                alpha *= 1.0
-        elif self.category == 2:
-            if timeStepIndex >= 0 and timeStepIndex <= 7:
-                alpha *= 1.0
-            elif timeStepIndex >= 8 and timeStepIndex <= 15:
-                alpha *= 0.5
-            elif timeStepIndex >= 16 and timeStepIndex <= 23:
-                alpha *= 1.0
-            elif timeStepIndex >= 24 and timeStepIndex <= 31:
-                alpha *= 1.0
-            elif timeStepIndex >= 32 and timeStepIndex <= 39:
-                alpha *= 1.0
-            else:
-                alpha *= 1.0
-        elif self.category == 3:
-            if timeStepIndex >= 0 and timeStepIndex <= 7:
-                alpha *= 1.0
-            elif timeStepIndex >= 8 and timeStepIndex <= 15:
-                alpha *= 1.0
-            elif timeStepIndex >= 16 and timeStepIndex <= 23:
-                alpha *= 1.0
-            elif timeStepIndex >= 24 and timeStepIndex <= 31:
-                alpha *= 1.0
-            elif timeStepIndex >= 32 and timeStepIndex <= 39:
-                alpha *= 1.0
-            else:
-                alpha *= 1.0
-        elif self.category == 4:
-            if timeStepIndex >= 0 and timeStepIndex <= 7:
-                alpha *= 0.5
-            elif timeStepIndex >= 8 and timeStepIndex <= 15:
-                alpha *= 1.2
-            elif timeStepIndex >= 16 and timeStepIndex <= 23:
-                alpha *= 1.0
-            elif timeStepIndex >= 24 and timeStepIndex <= 31:
-                alpha *= 1.0
-            elif timeStepIndex >= 32 and timeStepIndex <= 39:
-                alpha *= 1.0
-            else:
-                alpha *= 1.0
-        elif self.category == 5:
-            if timeStepIndex >= 0 and timeStepIndex <= 7:
-                alpha *= 1.0
-            elif timeStepIndex >= 8 and timeStepIndex <= 15:
-                alpha *= 1.0
-            elif timeStepIndex >= 16 and timeStepIndex <= 23:
-                alpha *= 1.0
-            elif timeStepIndex >= 24 and timeStepIndex <= 31:
-                alpha *= 1.0
-            elif timeStepIndex >= 32 and timeStepIndex <= 39:
-                alpha *= 1.0
-            else:
-                alpha *= 1.0
+        if historical_LeastWinningCost_mean != 0 and time_left < 0.5:
+            his_roi = historical_pValues_mean / historical_LeastWinningCost_mean
+            cur_roi = pValues / last_three_LeastWinningCost_mean
+            alpha = np.where(cur_roi > his_roi, alpha * 1.2, alpha)
+        self.cpa = max(self.cpa, 130)
+
+        # tmp = np.full(self.cpa.shape, 100)
+        # res1 = np.where(pValues < np.mean(pValues), alpha * (self.cpa * 1.0 / 100), alpha)
+        # res2 = np.where(pValues < np.mean(pValues), alpha * (2 - (self.cpa * 1.0 / 100)), alpha * (self.cpa * 1.0 / 100))
+        # alpha = np.where(self.cpa < tmp, res1, res2)
+
+        # if self.cpa < 100:
+        #     tmp = budget_left / time_left
+        #     if tmp < 1:
+        #         alpha = np.where(pValues < np.mean(pValues), alpha * tmp, alpha)
+        # else:
+        #     tmp = budget_left / time_left
+        #     if tmp > 1:
+        #         alpha = np.where(pValues < np.mean(pValues), alpha, alpha * tmp * tmp)
+        #     else:
+        #         pass
+
+        # if self.category == 0:
+        #     if timeStepIndex >= 0 and timeStepIndex <= 7:
+        #         alpha *= 1.2
+        #     elif timeStepIndex >= 8 and timeStepIndex <= 15:
+        #         alpha *= 0.5
+        #     elif timeStepIndex >= 16 and timeStepIndex <= 23:
+        #         alpha *= 1.0
+        #     elif timeStepIndex >= 24 and timeStepIndex <= 31:
+        #         alpha *= 1.0
+        #     elif timeStepIndex >= 32 and timeStepIndex <= 39:
+        #         alpha *= 1.2
+        #     else:
+        #         alpha *= 1.0
+        # elif self.category == 1:
+        #     if timeStepIndex >= 0 and timeStepIndex <= 7:
+        #         alpha *= 1.0
+        #     elif timeStepIndex >= 8 and timeStepIndex <= 15:
+        #         alpha *= 0.5
+        #     elif timeStepIndex >= 16 and timeStepIndex <= 23:
+        #         alpha *= 1.0
+        #     elif timeStepIndex >= 24 and timeStepIndex <= 31:
+        #         alpha *= 1.0
+        #     elif timeStepIndex >= 32 and timeStepIndex <= 39:
+        #         alpha *= 1.0
+        #     else:
+        #         alpha *= 1.0
+        # elif self.category == 2:
+        #     if timeStepIndex >= 0 and timeStepIndex <= 7:
+        #         alpha *= 1.0
+        #     elif timeStepIndex >= 8 and timeStepIndex <= 15:
+        #         alpha *= 0.5
+        #     elif timeStepIndex >= 16 and timeStepIndex <= 23:
+        #         alpha *= 1.0
+        #     elif timeStepIndex >= 24 and timeStepIndex <= 31:
+        #         alpha *= 1.0
+        #     elif timeStepIndex >= 32 and timeStepIndex <= 39:
+        #         alpha *= 1.0
+        #     else:
+        #         alpha *= 1.0
+        # elif self.category == 3:
+        #     if timeStepIndex >= 0 and timeStepIndex <= 7:
+        #         alpha *= 1.0
+        #     elif timeStepIndex >= 8 and timeStepIndex <= 15:
+        #         alpha *= 1.0
+        #     elif timeStepIndex >= 16 and timeStepIndex <= 23:
+        #         alpha *= 1.0
+        #     elif timeStepIndex >= 24 and timeStepIndex <= 31:
+        #         alpha *= 1.0
+        #     elif timeStepIndex >= 32 and timeStepIndex <= 39:
+        #         alpha *= 1.0
+        #     else:
+        #         alpha *= 1.0
+        # elif self.category == 4:
+        #     if timeStepIndex >= 0 and timeStepIndex <= 7:
+        #         alpha *= 0.5
+        #     elif timeStepIndex >= 8 and timeStepIndex <= 15:
+        #         alpha *= 1.2
+        #     elif timeStepIndex >= 16 and timeStepIndex <= 23:
+        #         alpha *= 1.0
+        #     elif timeStepIndex >= 24 and timeStepIndex <= 31:
+        #         alpha *= 1.0
+        #     elif timeStepIndex >= 32 and timeStepIndex <= 39:
+        #         alpha *= 1.0
+        #     else:
+        #         alpha *= 1.0
+        # elif self.category == 5:
+        #     if timeStepIndex >= 0 and timeStepIndex <= 7:
+        #         alpha *= 1.0
+        #     elif timeStepIndex >= 8 and timeStepIndex <= 15:
+        #         alpha *= 1.0
+        #     elif timeStepIndex >= 16 and timeStepIndex <= 23:
+        #         alpha *= 1.0
+        #     elif timeStepIndex >= 24 and timeStepIndex <= 31:
+        #         alpha *= 1.0
+        #     elif timeStepIndex >= 32 and timeStepIndex <= 39:
+        #         alpha *= 1.0
+        #     else:
+        #         alpha *= 1.0
 
         bids = alpha * pValues
 
