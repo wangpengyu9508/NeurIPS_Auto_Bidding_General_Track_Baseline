@@ -40,7 +40,7 @@ def train_viql_model():
     random.seed(config_seed)
     torch.manual_seed(config_seed)
 
-    train_data_path = "./data/traffic/training_data_rlData_folder/training_data_all-rlData.csv"
+    train_data_path = "./data/traffic/training_data_rlData_folder/training_data_all_online-rlData.csv"
     training_data = pd.read_csv(train_data_path)
 
     def safe_literal_eval(val):

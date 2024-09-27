@@ -34,7 +34,7 @@ class RlDataGenerator:
             del df, df_processed
             print("处理文件成功：", csv_path)
         combined_dataframe = pd.concat(training_data_list, axis=0, ignore_index=True)
-        combined_dataframe_path = os.path.join(self.training_data_path, "training_data_all-rlData.csv")
+        combined_dataframe_path = os.path.join(self.training_data_path, "training_data_all_online-rlData.csv")
         combined_dataframe.to_csv(combined_dataframe_path, index=False)
         print("整合多天训练数据成功；保存至:", combined_dataframe_path)
 
